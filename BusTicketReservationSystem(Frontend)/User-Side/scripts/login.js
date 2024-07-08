@@ -1,0 +1,162 @@
+let currUserID = JSON.parse(localStorage.getItem('uuid'));
+const userID = JSON.parse(localStorage.getItem('userid'));
+const currUser = JSON.parse(localStorage.getItem('uuid'));
+let baseURL = `http://localhost:8088`;
+if(currUserID == undefined){
+    currUserID = null;
+}
+
+localStorage.setItem('uuid', JSON.stringify(currUserID));
+
+//custome alert
+
+
+function openCustomAlert(message) {
+    const customAlert = document.getElementById('customAlert');
+    const customAlertMessage = document.getElementById('customAlertMessage');
+
+    customAlertMessage.textContent = message;
+    customAlert.style.display = 'block';
+    setTimeout(() => {
+        closeCustomAlert();
+    }, 5000)
+}
+
+function closeCustomAlert() {
+    const customAlert = document.getElementById('customAlert');
+    customAlert.style.display = 'none';
+}
+
+function changePassword() {
+    let password = document.getElementById("npassword").value;
+    let userData = {
+        userLoginId:userID,
+        password: password
+    };
+    console.log(userData);
+    const bookApi = `${baseURL}/user/update?key=${currUser}`;
+
+    fetch(bookApi,{
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json', // Replace with the appropriate content type if needed
+        },
+        body: JSON.stringify(userData)
+    })
+        .then(response => response.json())
+        .then(data => {
+            // Handle the API response data here
+            console.log(data);
+            alert("Password Updated Successfully....!");
+            window.location.href="../index.html";
+        })
+        .catch(error => {
+            // Handle any errors that occur during the fetch
+            console.error('Error:', error);
+            alert(error.message());
+        });
+}
+
+
+// Function to show the custom toast notification
+function showToast(message) {
+    const toastContainer = document.getElementById("customToastContainer");
+    const toast = document.createElement("div");
+    toast.className = "custom-toast";
+    toast.textContent = message;
+
+    toastContainer.appendChild(toast);
+
+    // Auto-hide the toast after 3 seconds (adjust as needed)
+    setTimeout(function () {
+        toastContainer.removeChild(toast);
+    }, 3000);
+}
+
+
+
+
+function sign_in() {
+    let password = document.getElementById("password").value;
+    let username = document.getElementById("username").value;
+
+    if (password == '' || username == '') {
+        showToast('Please fill all mandatory field !!');
+        return false;
+    }
+    // if (!document.getElementById("agree").checked) {
+    //     showToast('Please check Accepting all terms & conditions!!');
+    //     return false;
+    // }
+    let signInObj = {
+        "username": username,
+        "password": password
+    }
+    
+    if (signInObj.username == "admin" && signInObj.password == "admin1234") loginAdmin(signInObj);
+    else loginUser(signInObj);
+}
+
+
+function loginUser(obj) {
+
+    fetch(`${baseURL}/user/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // Specify that we're sending JSON data
+            },
+            body: JSON.stringify(obj), // Convert the data to JSON format
+        })
+        .then(response => response.json())
+        .then(data => {
+            // console.log(data);
+            if (data.userId== null) {
+                openCustomAlert(data.message);
+            } else {
+                showToast("User Login SucessFull!!");
+                
+                openCustomAlert("WelCome " + data.type);
+                
+                localStorage.setItem("uuid", JSON.stringify(data.uuid));
+                localStorage.setItem("userid", JSON.stringify(data.userId));
+                localStorage.setItem("username", JSON.stringify(data.type));
+                
+               window.location.href="../index.html";
+                //change page location from here after ssucessfull signup
+            }
+
+
+        })
+        .catch(error => {
+            // console.error('Error posting data:', error);
+        });
+}
+
+function loginAdmin(obj) {
+    console.log("Inside admin");
+
+    fetch(`${baseURL}/admin/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // Specify that we're sending JSON data
+            },
+            body: JSON.stringify(obj) // Convert the data to JSON format
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.userId == null) {
+                openCustomAlert(data.message);
+            } else {
+                
+                showToast("Admin Login SucessFull!!");
+                openCustomAlert("WelCome Admin!!");
+
+                localStorage.setItem("uuid", JSON.stringify(data.uuid));
+                
+                window.location.href = "../Admin_section/Admin_Home.html";
+            }
+        })
+        .catch(error => {
+            console.error('Error posting data:', error);
+        });
+}

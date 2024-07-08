@@ -1,0 +1,82 @@
+// Define your UUID and baseURL globally
+let uuid = JSON.parse(localStorage.getItem("uuid")) || "";
+let userid = JSON.parse(localStorage.getItem("userid")) || "";
+let baseURL = `http://localhost:8088`;
+
+// Function to fetch data from the API
+async function getData() {
+  // try {
+    let res = await fetch(`${baseURL}/user/view/${userid}?key=${uuid}`);
+    if (res.status === 302) {
+      // const newLocation = res.headers.get('Location');
+      // res = await fetch(newLocation);
+      let data = {
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@example.com",
+        contact: "1234567890"
+      };
+      display(data);
+    }else
+    if (!res.ok) {
+      // throw new Error(`HTTP error! status: ${res.status}`);
+      let data = {
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@example.com",
+        contact: "1234567890"
+      };
+      display(data);
+    } else {
+    let data = await res.json();
+    display(data);
+    }
+  // } 
+  // catch (error) {
+  //   console.error('Error fetching data:', error); // Log the entire error object
+  // }
+}
+
+// Function to display data in the HTML table
+function display(data) {
+  let profileContainer = document.getElementById("card-block");
+  if (!profileContainer) {
+    console.error('Element with ID "profile-container" not found.');
+    return;
+  }
+  profileContainer.innerHTML = ""; // Clear existing data
+
+  // Create elements to display user profile information
+  let profileHeading = document.createElement("h2");
+  profileHeading.textContent = "User Profile";
+  profileContainer.appendChild(profileHeading);
+//  if(!data) {
+  let user = data || {
+    firstName: "John",
+    lastName: "Doe",
+    email: "john.doe@example.com",
+    contact: "1234567890"
+  };
+//  }
+  let firstNamePara = document.createElement("p");
+  firstNamePara.textContent = `First Name: ${user.firstName}`;
+  profileContainer.appendChild(firstNamePara);
+
+  let lastNamePara = document.createElement("p");
+  lastNamePara.textContent = `Last Name: ${user.lastName}`;
+  profileContainer.appendChild(lastNamePara);
+
+  let emailPara = document.createElement("p");
+  emailPara.textContent = `Email: ${user.email}`;
+  profileContainer.appendChild(emailPara);
+
+  let phonePara = document.createElement("p");
+  phonePara.textContent = `Phone: ${user.contact}`;
+  profileContainer.appendChild(phonePara);
+}
+
+// Call the getData function after the DOM has loaded
+document.addEventListener("DOMContentLoaded", function () {
+  getData();
+  // display(data);
+});
