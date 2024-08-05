@@ -30,4 +30,4 @@ We use version control to manage the development workflow and track changes to t
 
 [![Project Workflow video]()
 
-For any questions or support, please contact [your contact information here].
+For any questions or support, please contact [vyshnavinalla2001@gmail.com].
